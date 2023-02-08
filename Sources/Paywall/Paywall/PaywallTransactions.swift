@@ -47,11 +47,13 @@ extension Paywall {
               message: "Transaction Failed to Restore"
             )
             if userInitiated {
-              paywallViewController.presentAlert(
-                title: Paywall.options.restoreFailed.title,
-                message: Paywall.options.restoreFailed.message,
-                closeActionTitle: Paywall.options.restoreFailed.closeButtonTitle
-              )
+              if(Paywall.options.isAlertMessagenEnabled){
+                paywallViewController.presentAlert(
+                  title: Paywall.options.restoreFailed.title,
+                  message: Paywall.options.restoreFailed.message,
+                  closeActionTitle: Paywall.options.restoreFailed.closeButtonTitle
+                )
+              }
             }
           }
         }
@@ -159,14 +161,16 @@ extension Paywall {
 
         SessionEventsManager.shared.triggerSession.trackTransactionError()
 
-				self.paywallViewController?.presentAlert(
-          title: "Please try again",
-          message: error?.localizedDescription ?? "",
-          actionTitle: "Restore Purchase",
-          onCancel: {
-            Paywall.shared.tryToRestore(paywallViewController)
-          }
-        )
+        if(Paywall.options.isAlertMessagenEnabled){
+          self.paywallViewController?.presentAlert(
+            title: "Please try again",
+            message: error?.localizedDescription ?? "",
+            actionTitle: "Restore Purchase",
+            onCancel: {
+              Paywall.shared.tryToRestore(paywallViewController)
+            }
+          )
+        }
       } else {
         Paywall.shared.tryToRestore(paywallViewController)
         self.didTryToAutoRestore = true
@@ -209,10 +213,12 @@ extension Paywall {
 
 	// if a parent needs to approve the purchase
 	private func transactionWasDeferred(paywallViewController: SWPaywallViewController) {
-		paywallViewController.presentAlert(
-      title: "Waiting for Approval",
-      message: "Thank you! This purchase is pending approval from your parent. Please try again once it is approved."
-    )
+    if(Paywall.options.isAlertMessagenEnabled){
+      paywallViewController.presentAlert(
+        title: "Waiting for Approval",
+        message: "Thank you! This purchase is pending approval from your parent. Please try again once it is approved."
+      )
+    }
 
 		let paywallInfo = paywallViewController.paywallInfo
     let trackedEvent = SuperwallEvent.Transaction(
@@ -333,12 +339,14 @@ extension Paywall: SKPaymentTransactionObserver {
           )
 					self.transactionErrorDidOccur(paywallViewController: paywallViewController, error: nil, for: product)
 					onMain {
-						paywallViewController.presentAlert(
-              title: "Something went wrong",
-              message: transaction.error?.localizedDescription ?? "",
-              actionTitle: nil,
-              action: nil
-            )
+            if(Paywall.options.isAlertMessagenEnabled){
+              paywallViewController.presentAlert(
+                title: "Something went wrong",
+                message: transaction.error?.localizedDescription ?? "",
+                actionTitle: nil,
+                action: nil
+              )
+            }
 					}
 				}
 			case .restored:
